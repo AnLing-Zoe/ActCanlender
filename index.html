@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>活動日曆</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" aria-label="活動日曆">
+        <a class="brand" href="#events" aria-label="回到活動列表">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>
+            <strong>活動日曆</strong>
+            <small>路跑與泳渡</small>
+          </span>
+        </a>
+
+        <nav class="page-tabs" aria-label="主要頁面">
+          <a class="tab-link" href="#events" data-route="events">可報名活動</a>
+          <a class="tab-link" href="#favorites" data-route="favorites">我的最愛</a>
+        </nav>
+      </header>
+
+      <main>
+        <section id="events-view" class="view">
+          <div class="dashboard-grid">
+            <aside class="filter-panel" aria-label="活動篩選">
+              <label for="search-input">搜尋活動</label>
+              <div class="search-box">
+                <input id="search-input" type="search" placeholder="活動名稱或縣市" autocomplete="off" />
+              </div>
+
+              <fieldset>
+                <legend>活動類型</legend>
+                <div class="segmented" role="group" aria-label="活動類型">
+                  <button class="segment is-active" type="button" data-type="all">全部</button>
+                  <button class="segment" type="button" data-type="run">路跑</button>
+                  <button class="segment" type="button" data-type="swim">泳渡</button>
+                </div>
+              </fieldset>
+
+              <label for="city-select">縣市</label>
+              <select id="city-select">
+                <option value="all">全部縣市</option>
+              </select>
+
+              <div class="stat-strip" aria-live="polite">
+                <span>近一年可報名</span>
+                <strong id="open-count">0</strong>
+              </div>
+            </aside>
+
+            <section class="content-panel" aria-labelledby="events-heading">
+              <div class="section-heading">
+                <div>
+                  <p class="eyebrow"><span id="date-range-label"></span></p>
+                  <h1 id="events-heading">近一年可以報名的活動</h1>
+                </div>
+                <button id="clear-filters" class="ghost-button" type="button">清除篩選</button>
+              </div>
+
+              <div class="table-wrap" role="region" aria-label="活動列表" tabindex="0">
+                <table>
+                  <thead>
+                    <tr>
+                      <th scope="col">收藏</th>
+                      <th scope="col">活動日期</th>
+                      <th scope="col">報名期限</th>
+                      <th scope="col">活動名稱</th>
+                      <th scope="col">縣市</th>
+                    </tr>
+                  </thead>
+                  <tbody id="events-table"></tbody>
+                </table>
+              </div>
+
+              <nav id="pagination" class="pagination" aria-label="活動分頁" hidden>
+                <button id="prev-page" class="page-control" type="button">上一頁</button>
+                <div id="page-buttons" class="page-buttons" aria-label="頁碼"></div>
+                <button id="next-page" class="page-control" type="button">下一頁</button>
+                <span id="page-info" class="page-info"></span>
+              </nav>
+
+              <div id="empty-events" class="empty-state" hidden>
+                <strong>找不到符合條件的活動</strong>
+                <span>換個縣市或類型看看。</span>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section id="favorites-view" class="view" hidden>
+          <div class="section-heading favorites-heading">
+            <div>
+              <p class="eyebrow">收藏清單</p>
+              <h1>我的最愛活動</h1>
+            </div>
+          </div>
+
+          <div id="favorite-cards" class="cards-grid" aria-live="polite"></div>
+
+          <div id="empty-favorites" class="empty-state favorite-empty" hidden>
+            <strong>還沒有收藏活動</strong>
+            <span>回到可報名活動列表，按下星號加入我的最愛。</span>
+            <a class="primary-link" href="#events">查看活動</a>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
