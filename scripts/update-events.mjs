@@ -6,7 +6,7 @@ import vm from "node:vm";
 const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const APP_PATH = resolve(ROOT, "app.js");
 const DATA_PATH = resolve(ROOT, "data/events.js");
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 const TODAY = startOfToday();
 const ONE_YEAR_LATER = new Date(TODAY);
 ONE_YEAR_LATER.setFullYear(ONE_YEAR_LATER.getFullYear() + 1);

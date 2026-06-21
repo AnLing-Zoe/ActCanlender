@@ -3,7 +3,7 @@ const ONE_YEAR_LATER = new Date(TODAY);
 ONE_YEAR_LATER.setFullYear(ONE_YEAR_LATER.getFullYear() + 1);
 
 const FAVORITES_KEY = "activity-calendar-favorites";
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 
 const fallbackEvents = [
   {
