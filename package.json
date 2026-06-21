@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "check": "node --check app.js && node --check scripts/update-events.mjs",
+    "update-events": "node scripts/update-events.mjs"
+  }
+}

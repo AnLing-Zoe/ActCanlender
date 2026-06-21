@@ -1,0 +1,46 @@
+name: Update activity data
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub Actions schedules use UTC. This runs at 14:00 Asia/Taipei every 3 days.
+    - cron: "0 6 */3 * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-activity-data
+  cancel-in-progress: true
+
+jobs:
+  update-events:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Refresh event data
+        run: node scripts/update-events.mjs
+
+      - name: Validate generated files
+        run: node --check app.js && node --check scripts/update-events.mjs
+
+      - name: Commit updated event data
+        run: |
+          if git diff --quiet -- data/events.js; then
+            echo "No event data changes."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/events.js
+          git commit -m "chore: refresh activity data"
+          git push

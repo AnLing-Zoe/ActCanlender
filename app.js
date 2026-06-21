@@ -5,7 +5,7 @@ ONE_YEAR_LATER.setFullYear(ONE_YEAR_LATER.getFullYear() + 1);
 const FAVORITES_KEY = "activity-calendar-favorites";
 const PAGE_SIZE = 10;
 
-const sourceEvents = [
+const fallbackEvents = [
   {
     id: "run-2026-father-mini",
     type: "run",
@@ -438,7 +438,8 @@ const sourceEvents = [
   }
 ];
 
-const events = dedupeEvents(sourceEvents);
+const externalEvents = Array.isArray(globalThis.ACTIVITY_EVENTS) ? globalThis.ACTIVITY_EVENTS : null;
+const events = dedupeEvents(externalEvents || fallbackEvents);
 
 let activeRoute = "events";
 let selectedType = "all";
