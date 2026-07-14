@@ -23,9 +23,10 @@ const SOURCE_CONFIGS = [
     url: "https://www.sportsnet.org.tw/online_reg.php"
   },
   {
-    name: "伊貝特報名網",
+    name: "全統運動報名網",
     type: "run",
-    url: "https://bao-ming.com/"
+    url: "https://www.ctrun.com.tw/",
+    parser: "ctrun"
   }
 ];
 
@@ -98,7 +99,7 @@ async function main() {
 
 async function loadFallbackEvents() {
   const appJs = await readFile(APP_PATH, "utf8");
-  const match = appJs.match(/const fallbackEvents = (\[[\s\S]*?\n\]);\n\nconst externalEvents/);
+  const match = appJs.match(/const fallbackEvents = (\[[\s\S]*?\]);\s*const externalEvents/);
 
   if (!match) {
     throw new Error("Cannot find fallbackEvents in app.js.");
@@ -115,7 +116,7 @@ async function fetchAllSources() {
 async function fetchSource(source) {
   try {
     const html = await fetchText(source.url);
-    const candidates = parseEventsFromHtml(html, source);
+    const candidates = source.parser === "ctrun" ? await parseCTrunEvents(html, source) : parseEventsFromHtml(html, source);
     const events = candidates.filter(isHighConfidenceFetchedEvent);
     console.log(`${source.name}: parsed ${candidates.length} candidates, accepted ${events.length}.`);
     return events;
@@ -123,6 +124,40 @@ async function fetchSource(source) {
     console.warn(`${source.name}: fetch skipped (${error.message}).`);
     return [];
   }
+}
+
+async function parseCTrunEvents(html, source) {
+  const eventIds = [...new Set([...html.matchAll(/id=["']eventId_(\d+)["']/g)].map((match) => match[1]))];
+  const events = await Promise.all(eventIds.map(async (eventId) => {
+    const sourceUrl = new URL(`/Activity?EventMain_ID=${eventId}`, source.url).toString();
+    const detailHtml = await fetchText(sourceUrl);
+    const name = normalizeText(stripTags(detailHtml.match(/<title>([\s\S]*?)<\/title>/i)?.[1] || ""));
+    const startTimestamp = Number(detailHtml.match(/var EventDT =\s*(\d+)/)?.[1]);
+    const deadlineTimestamp = Number(detailHtml.match(/var EventEntryDeadlineDT =\s*(\d+)/)?.[1]);
+
+    if (!isLikelyEventName(name, source.type) || !startTimestamp || !deadlineTimestamp) {
+      return null;
+    }
+
+    const startDate = formatTaiwanDate(startTimestamp);
+    const city = extractCity(detailHtml);
+    return {
+      id: buildStableId(source.type, startDate, city, name),
+      type: source.type,
+      name,
+      startDate,
+      registrationEnd: formatTaiwanDate(deadlineTimestamp),
+      city,
+      sourceName: source.name,
+      sourceUrl
+    };
+  }));
+
+  return events.filter(Boolean);
+}
+
+function formatTaiwanDate(timestamp) {
+  return new Date(timestamp + 8 * 60 * 60 * 1000).toISOString().slice(0, 10);
 }
 
 async function fetchText(url) {
@@ -263,7 +298,8 @@ function stripTags(value) {
     .replace(/&nbsp;/g, " ")
     .replace(/&amp;/g, "&")
     .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'");
+    .replace(/&#39;/g, "'")
+    .replace(/&#(\d+);/g, (_, code) => String.fromCodePoint(Number(code)));
 }
 
 function normalizeText(value) {
@@ -405,7 +441,7 @@ function isBetterSourceUrl(candidate, current) {
     return true;
   }
 
-  const genericPatterns = ["q=competition", "bao-ming.com/", "sportsnet.org.tw/"];
+  const genericPatterns = ["q=competition", "sportsnet.org.tw/"];
   const currentIsGeneric = genericPatterns.some((pattern) => current.endsWith(pattern) || current.includes(pattern));
   const candidateIsSpecific = candidate.includes("act=info") || candidate.includes("online_reg_rule") || candidate.includes("eb/content");
   return currentIsGeneric && candidateIsSpecific;

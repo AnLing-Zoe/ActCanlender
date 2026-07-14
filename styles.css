@@ -315,7 +315,7 @@ th {
 }
 
 th:first-child,
-.favorite-cell {
+.city-cell {
   position: sticky;
   left: 0;
   box-shadow: 1px 0 0 var(--line);
@@ -325,7 +325,7 @@ th:first-child {
   z-index: 4;
 }
 
-.favorite-cell {
+.city-cell {
   z-index: 3;
   background: #fff;
 }
@@ -338,7 +338,7 @@ tbody tr:hover {
   background: #fbf7ef;
 }
 
-tbody tr:hover .favorite-cell {
+tbody tr:hover .city-cell {
   background: #fbf7ef;
 }
 

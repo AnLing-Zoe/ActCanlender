@@ -337,86 +337,6 @@ const fallbackEvents = [
     sourceUrl: "https://www.sportsnet.org.tw/online_reg_rule.php?race_no=20260906"
   },
   {
-    id: "eb-2026-yuelao",
-    type: "run",
-    name: "2026聖母廟月老姻緣紅線牽馬拉松",
-    startDate: "2026-08-15",
-    registrationEnd: "2026-07-15",
-    city: "臺南市",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-fubei",
-    type: "run",
-    name: "2026府北馬拉松",
-    startDate: "2026-10-11",
-    registrationEnd: "2026-08-02",
-    city: "臺南市",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-luzhou-guanyinshan",
-    type: "run",
-    name: "2026 蘆洲觀音山馬拉松",
-    startDate: "2026-11-15",
-    registrationEnd: "2026-08-15",
-    city: "新北市",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-united-university",
-    type: "run",
-    name: "2026 聯大八甲馬拉松",
-    startDate: "2026-10-31",
-    registrationEnd: "2026-09-22",
-    city: "苗栗縣",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-glory-93",
-    type: "run",
-    name: "2026「榮耀九三 向國軍致敬」路跑嘉年華",
-    startDate: "2026-09-20",
-    registrationEnd: "2026-08-23",
-    city: "臺北市",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-lianlian-197",
-    type: "run",
-    name: "2026戀戀197",
-    startDate: "2026-12-06",
-    registrationEnd: "2026-08-31",
-    city: "臺東縣",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-beautiful-jinshan",
-    type: "run",
-    name: "2026美麗金山路跑活動",
-    startDate: "2026-08-29",
-    registrationEnd: "2026-06-28",
-    city: "新北市",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
-    id: "eb-2026-penghu-marathon",
-    type: "run",
-    name: "2026菊島澎湖跨海馬拉松",
-    startDate: "2026-11-01",
-    registrationEnd: "2026-08-11",
-    city: "澎湖縣",
-    sourceName: "伊貝特報名網",
-    sourceUrl: "https://bao-ming.com/"
-  },
-  {
     id: "swim-2026-sun-moon-lake",
     type: "swim",
     name: "日月潭國際萬人泳渡",
@@ -547,7 +467,7 @@ function getListedEvents() {
   return events
     .filter((event) => {
       if (event.type === "swim") {
-        return parseDate(event.startDate).getFullYear() === TODAY.getFullYear();
+        return isWithinNextYear(event.startDate);
       }
 
       return isWithinNextYear(event.startDate) && isRegistrationOpen(event.registrationEnd);
@@ -580,16 +500,16 @@ function createEventRow(event) {
   const isSaved = favorites.includes(event.id);
 
   row.innerHTML = `
-    <td class="favorite-cell"></td>
-    <td class="date-cell">${formatDate(event.startDate)}</td>
+    <td class="city-cell">${event.city}</td>
     <td class="date-cell">${formatDate(event.registrationEnd)}</td>
+    <td class="date-cell">${formatDate(event.startDate)}</td>
     <td>
       <div class="event-name">
         <span class="type-pill ${event.type}">${typeLabel(event.type)}</span>
-        <span>${event.name}</span>
+        <a href="${event.sourceUrl}" target="_blank" rel="noopener noreferrer">${event.name}</a>
       </div>
     </td>
-    <td class="city-cell">${event.city}</td>
+    <td class="favorite-cell"></td>
   `;
 
   const button = document.createElement("button");
@@ -797,7 +717,7 @@ function isBetterSourceUrl(candidate, current) {
     return true;
   }
 
-  const genericPatterns = ["q=competition", "bao-ming.com/", "sportsnet.org.tw/"];
+  const genericPatterns = ["q=competition", "sportsnet.org.tw/"];
   const currentIsGeneric = genericPatterns.some((pattern) => current.endsWith(pattern) || current.includes(pattern));
   const candidateIsSpecific = candidate.includes("act=info") || candidate.includes("online_reg_rule");
   return currentIsGeneric && candidateIsSpecific;
